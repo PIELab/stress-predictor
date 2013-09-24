@@ -51,8 +51,8 @@
 	}
 
 	formatTime <- function(year,mon,day,hr,min){
-		if ( min < 10 ) mmm <- cat('0',m) else mmm <- min #add padding 0 to minutes
-		formattedTimeString <- cat(mon,'/',day,'/',year,' ',hr,':',min)
+		if ( min < 10 ) {mmm <- paste('0',m,sep="")} else {mmm <- min} #add padding 0 to minutes
+		formattedTimeString <- paste(mon,'/',day,'/',year,' ',hr,':',mmm,sep="")
 		formattedTimeString
 	}
 
@@ -62,11 +62,11 @@
 	m <- START.m
 	i <- 1
 	rowsInserted <- 0
-	while (i < length(zz.df[1]) ){
+	while (i < length(zz.df[[1]]) ){
 		#2/29/2012 0:03
 		currentTimeStr <- formatTime('2012',START.mon,d,hr,m)
-		print( cat(currentTimeStr,'=?=',row["time"]) )
-		while ( currentTimeStr != row["time"]){ # if next minute is not in the data
+		print( cat(currentTimeStr,'=?=',zz.df[["time"]][i]) )
+		while ( currentTimeStr != zz.df[["time"]][i]){ # if next minute is not in the data
 			# col[0] = "time", the rest are NA TODO:add col[1] = "timestamp" as well
 			NA_VALUE <- "NA"
 			newRow <- c( currentTimeStr,rep(NA_VALUE,length(zz.df)-1) )
@@ -88,6 +88,18 @@
 			currentTimeStr <- formatTime('2012',START.mon,d,hr,m)
 		}
 		i <- i+1
+		# move to the next minute
+		m <- m + 1
+		if ( m >= 60 ){ # 60m = 1hr
+			hr <- hr + 1
+			if ( hr >= 24 ){ #24hr = 1d
+				d <- d+1
+				hr<- 0
+			m  <- 0
+			}
+		}
+		#update current time string
+		currentTimeStr <- formatTime('2012',START.mon,d,hr,m)
 	}
 	print (cat(rowsInserted," NA rows inserted."))
 
