@@ -17,8 +17,20 @@
 	END.hr   <- 0
 	END.m    <- 19
 	END.val  <- END.hr*60 + END.m
-	print(cat("creating time-series object from minute ",START.val," to ",END.val,". #samples=",length(zz.df[indexOfItem]) ))
 
+	#location of training/test set split in data
+	SPLIT.index <- 3500# 2/22/2012 5:23
+	SPLIT.val   <- (5*60 + 23 )/24
+
+	INDEX_OF_INTEREST <- "Varience.of.RR.Interval"	#the column of interest in the csv file (yes, Variance is mispelled)
+
+	#these are for adjusting the focus of the evaluation graph
+	ZOOM.start <- 2.4
+	ZOOM.end   <- 2.7
+
+	DELTA_T = 1/(24*60) #once per minute, assumes cycle is 1 day
+
+	#=== END OF DATA-SPECIFIC VALUES ===
 
 	print(cat("loading data from ",fname))
 	zz.df  <- read.csv(fname,strip.white=TRUE,header=TRUE,stringsAsFactors=FALSE)
@@ -27,22 +39,11 @@
 	print("available columns:")
 	print(colnames(zz.df))
 	# select time-series object from dataframe (use http://stat.ethz.ch/R-manual/R-patched/library/stats/html/ts.html for ref)
-	indexOfItem <- "Varience.of.RR.Interval"	#the column of interest in the csv file (yes, Variance is mispelled)
-	print(cat("selected column: ",indexOfItem))
+	print(cat("selected column: ",INDEX_OF_INTEREST))
 
-	#=== for actual year-long time-series data (this is too big to fit in a normal computer's ram)
-#	#start time
-#	sDayOfYear <- 37
-#	smin<-16*60 + 30.19
-#	#end time
-#	eDayOfYear <- 37#44
-#	emin<-23*60 + 19.19
-#	START <- sDayOfYear*24*60+smin
-#	END   <- eDayOfYear*24*60+emin
-#	print(cat("creating time-series object from ",START," to ",END))
-#	zz.ts <-  ts(data=zz.df[indexOfItem],deltat=1/365.265/24/60,start=START,end=END) # deltat=minute data
 
-	# add NA values for missing times 
+	print("adding NA values for missing rows") 
+
 	insertRow <- function(existingDF, newrow, r) {
 	  existingDF[seq(r+1,nrow(existingDF)+1),] <- existingDF[seq(r,nrow(existingDF)),]
 	  existingDF[r,] <- newrow
@@ -90,7 +91,12 @@
 	}
 	print (cat(rowsInserted," NA rows inserted."))
 
-	zz.ts <- ts(data=zz.df[[indexOfItem]],deltat=1/(24*60),start=START.val)#,end=END.val)
+	print(cat("creating time-series object from minute ",START.val," to ",END.val,". #samples=",length(zz.df[INDEX_OF_INTEREST]) ))
+	zz.ts <- ts(data=zz.df[[INDEX_OF_INTEREST]],deltat=DELTA_T,start=START.val)#,end=END.val)
+
+	print("splitting into training & test sets")
+	zz.train <- ts(data=zz.ts[1:SPLIT.index]           ,deltat=DELTA_T, start=START.val  )
+	zz.test  <- ts(data=zz.ts[SPLIT.index:length(zz.ts)],deltat=DELTA_T, start=SPLIT.val+1)
 
 	print("plotting data...")
 	plot(zz.ts,main='input data',xlab='time [min]',ylab='HRV')
@@ -110,7 +116,17 @@
 	library('forecast') # must be installed using install.packages('forecast') 
 	#ALSO: this lib only works on R v2.15.1+ (I spent two hours learning this)
 	# details and publication for this package: http://robjhyndman.com/software/forecast/
-	plot(forecast(zz.ts),xlab='time [mins]')
+	zz.pred <- forecast(zz.train)
+	plot(zz.pred,xlab='time [mins?]')
 
-	#TODO: add eval
+	print("plotting prediction evaluation")
+	dev.new()
+	plot(zz.pred,xlim=c(ZOOM.start,ZOOM.end),main='prediction vs real data',ylab='IE ratio',xlab='time [days?]')
+	points(zz.train,type='l',col='green',lwd=2)
+	points(zz.test,type='l',col='red',lwd=2)
+
+	legend(99.5,8, # places a legend at the appropriate place 
+	c("training data","test data","forecast"), # puts text in the legend 
+	lty=c(1,1,1), # gives the legend appropriate symbols (lines)
+	lwd=c(2,2,2),col=c("green","red","blue")) # gives the legend lines the correct color and width
 
