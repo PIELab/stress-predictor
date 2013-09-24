@@ -1,3 +1,9 @@
+#data folder
+data/*
+
+#ubuntu backup files
+*~
+
 # History files
 .Rhistory
 
