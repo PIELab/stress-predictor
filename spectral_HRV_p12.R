@@ -58,7 +58,6 @@
 	i <- 1
 	rowsInserted <- 0
 	while (i < length(zz.df[1]) ){
-		#2/29/2012 0:03
 		currentTimeStr <- formatTime('2012',START.mon,d,hr,m)
 		print( cat(currentTimeStr,'=?=',row["time"]) )
 		while ( currentTimeStr != row["time"]){ # if next minute is not in the data
@@ -75,9 +74,8 @@
 				hr <- hr + 1
 				if ( hr >= 24 ){ #24hr = 1d
 					d <- d+1
-					hr<- 0
+					hr <- 0
 				m  <- 0
-				}
 			}
 			#update current time string
 			currentTimeStr <- formatTime('2012',START.mon,d,hr,m)
