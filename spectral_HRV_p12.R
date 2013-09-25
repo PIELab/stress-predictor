@@ -64,7 +64,7 @@
 			# col[0] = "time", the rest are NA TODO:add col[1] = "timestamp" as well
 			NA_VALUE <- "NA"
 			newRow <- c( currentTimeStr,rep(NA_VALUE,length(zz.df)-1) )
-			print( cat("adding row ",newRow) )
+			print( paste("adding row ",newRow,". new length=",length(zz.df[1]),sep="") )
 			insertRow(zz.df,newRow,i) # add the row
 			rowsInserted <- rowsInserted+1
 
@@ -72,10 +72,10 @@
 			m <- m + 1
 			if ( m >= 60 ){ # 60m = 1hr
 				hr <- hr + 1
+				m  <- 0
 				if ( hr >= 24 ){ #24hr = 1d
 					d <- d+1
 					hr <- 0
-				m  <- 0
 			}
 			#update current time string
 			currentTimeStr <- formatTime('2012',START.mon,d,hr,m)
