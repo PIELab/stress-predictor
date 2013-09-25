@@ -10,23 +10,27 @@
 	START.day<- 7
 	START.hr <- 0
 	START.m  <- 0
-	START.val<- START.hr*60+START.m
+	START.val<- 0 + (START.hr*60+START.m)/(1440)
 	# end = 2/29/2012 0:19
 	END.mon  <- 2
 	END.day  <- 29
 	END.hr   <- 0
 	END.m    <- 19
-	END.val  <- END.hr*60 + END.m
+	END.val  <- END.day - START.day + ( END.hr*60 + END.m)/(1440)
 
 	#location of training/test set split in data
-	SPLIT.index <- 3500# 2/22/2012 5:23
-	SPLIT.val   <- (5*60 + 23 )/24
+	# NOTE: you will want to chose these approximately 2 cycles (days) before the end of the data
+	SPLIT.index <- 30000 # "30000","2/27/2012 19:59"
+	SPLIT.day   <- 27
+	SPLIT.hr    <- 19
+	SPLIT.m     <- 59
+	SPLIT.val   <- SPLIT.day - START.day + ( SPLIT.hr*60 + SPLIT.m )/(1440)
 
 	INDEX_OF_INTEREST <- "Varience.of.RR.Interval"	#the column of interest in the csv file (yes, Variance is mispelled)
 
 	#these are for adjusting the focus of the evaluation graph
-	ZOOM.start <- 2.4
-	ZOOM.end   <- 2.7
+	ZOOM.start <- 20
+	ZOOM.end   <- 23
 
 	DELTA_T = 1/(24*60) #once per minute, assumes cycle is 1 day
 
@@ -124,18 +128,18 @@
 	zz.ts <- ts(data=zz.df[[INDEX_OF_INTEREST]],deltat=DELTA_T,start=START.val)#,end=END.val)
 
 	print("splitting into training & test sets")
-	zz.train <- ts(data=zz.ts[1:SPLIT.index]           ,deltat=DELTA_T, start=START.val  )
-	zz.test  <- ts(data=zz.ts[SPLIT.index:length(zz.ts)],deltat=DELTA_T, start=SPLIT.val+1)
+	zz.train <- ts(data=zz.ts[1:SPLIT.index]            ,deltat=DELTA_T, start=START.val  )
+	zz.test  <- ts(data=zz.ts[SPLIT.index:length(zz.ts)],deltat=DELTA_T, start=SPLIT.val)
 
 	print("plotting data...")
-	plot(zz.ts,main='input data',xlab='time [min]',ylab='HRV')
+	plot(zz.ts,main='input data',xlab='time [??]',ylab='HRV')
 
-	print ("ensuring dataframe is numeric")
-	zz.ts <- as.numeric(zz.ts)
+	#print ("ensuring dataframe is numeric ts")
+	#zz.ts <- as.ts(as.numeric(zz.ts),deltat=DELTA_T,start=START.val)
 	
 	print("plotting spectral graph..")
 	dev.new()
-	plot(spectrum(zz.ts,method="ar"),ylab='frequency[1/min]')
+	plot(spectrum(as.numeric(zz.ts),method="ar"),ylab='frequency[1/??]')
 	
 	print("plotting time series decomposition components")
 	dev.new()
@@ -149,11 +153,11 @@
 	#ALSO: this lib only works on R v2.15.1+ (I spent two hours learning this)
 	# details and publication for this package: http://robjhyndman.com/software/forecast/
 	zz.pred <- forecast(zz.train)
-	plot(zz.pred,xlab='time [mins?]')
+	plot(zz.pred,xlab='time [???]')
 
 	print("plotting prediction evaluation")
 	dev.new()
-	plot(zz.pred,xlim=c(ZOOM.start,ZOOM.end),main='prediction vs real data',ylab='IE ratio',xlab='time [days?]')
+	plot(zz.pred,xlim=c(ZOOM.start,ZOOM.end),main='prediction vs real data',ylab='IE ratio',xlab='time [????]')
 	points(zz.train,type='l',col='green',lwd=2)
 	points(zz.test,type='l',col='red',lwd=2)
 
