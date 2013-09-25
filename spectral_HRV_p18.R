@@ -20,17 +20,17 @@
 
 	#location of training/test set split in data
 	# NOTE: you will want to chose these approximately 2 cycles (days) before the end of the data
-	SPLIT.index <- 30000 # "30000","2/27/2012 19:59"
+	SPLIT.index <- 28820 # "28820","2/27/2012 0:19"
 	SPLIT.day   <- 27
-	SPLIT.hr    <- 19
-	SPLIT.m     <- 59
+	SPLIT.hr    <- 0
+	SPLIT.m     <- 19
 	SPLIT.val   <- SPLIT.day - START.day + ( SPLIT.hr*60 + SPLIT.m )/(1440)
 
 	INDEX_OF_INTEREST <- "Varience.of.RR.Interval"	#the column of interest in the csv file (yes, Variance is mispelled)
 
 	#these are for adjusting the focus of the evaluation graph
 	ZOOM.start <- 20
-	ZOOM.end   <- 23
+	ZOOM.end   <- 22.1
 
 	DELTA_T = 1/(24*60) #once per minute, assumes cycle is 1 day
 
