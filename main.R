@@ -1,24 +1,28 @@
 #! /usr/bin/Rscript
-	#this is a spectral analysis including exponential smoothing prediction of P12's data
+	# this is a spectral analysis including exponential smoothing prediction
+	# which treats 1 day as an entire 'seasonal cycle'. 
 
-	# read dataframe from file
+
+
+	# the following values MUST be adjusted to fit your use-case:
+
+	# name of data file
 	fname <- "data/Participants_18_memphis_study_2/all-groups_with_NAs.csv" 
 
-	# == for treating 1 day as an entire 'seasonal cycle'.
-	# start = 2/7/2012 0:00
+	# first time in dataset = 2/7/2012 0:00
 	START.mon<- 2
 	START.day<- 7
 	START.hr <- 0
 	START.m  <- 0
 	START.val<- 0 + (START.hr*60+START.m)/(1440)
-	# end = 2/29/2012 0:19
+	# last time in the dataset = 2/29/2012 0:19
 	END.mon  <- 2
 	END.day  <- 29
 	END.hr   <- 0
 	END.m    <- 19
 	END.val  <- END.day - START.day + ( END.hr*60 + END.m)/(1440)
 
-	#location of training/test set split in data
+	# desired location of training/test set split in data
 	# NOTE: you will want to chose these approximately 2 cycles (days) before the end of the data
 	SPLIT.index <- 28820 # "28820","2/27/2012 0:19"
 	SPLIT.day   <- 27
@@ -26,7 +30,13 @@
 	SPLIT.m     <- 19
 	SPLIT.val   <- SPLIT.day - START.day + ( SPLIT.hr*60 + SPLIT.m )/(1440)
 
-	INDEX_OF_INTEREST <- "Varience.of.RR.Interval"	#the column of interest in the csv file (yes, Variance is mispelled)
+	# the column of interest in the csv file (yes, Variance is mispelled)
+	INDEX_OF_INTEREST <- "Varience.of.RR.Interval"	
+
+	# === OPTIONAL COFIGURATION ITEMS: ===
+
+	# TRUE if you want to check for missing rows. if FALSE, script will not check for them.
+	MISSING_DATA = TRUE	
 
 	#these are for adjusting the focus of the evaluation graph
 	ZOOM.start <- 20
@@ -34,9 +44,7 @@
 
 	DELTA_T = 1/(24*60) #once per minute, assumes cycle is 1 day
 
-	MISSING_DATA = TRUE	# TRUE if there are missing rows. if FALSE, script will not check for them.
-
-	#=== END OF DATA-SPECIFIC VALUES ===
+	# === END OF DATA-SPECIFIC VALUES, BEGIN PROGRAM CODE ===
 
 	print(cat("loading data from ",fname))
 	zz.df  <- read.csv(fname,strip.white=TRUE,header=TRUE,stringsAsFactors=FALSE)
