@@ -20,7 +20,7 @@
 	# === PRE-DEFINED VALUE SETS FOR CONVENIENCE ===
 	if(PARTICIPANT_N == 12){
 		# name of data file
-		fname <- "data/Participants_12_memphis_study_1/logax.csv" 
+		fname <- "data/Participant_12_memphis_study_1/logsax.csv" 
 
 		print(cat("const values for participant number",par_N,"undefined. quitting."))
 		q()
