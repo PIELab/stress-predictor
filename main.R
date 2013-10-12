@@ -4,39 +4,12 @@
 
 
 
-	# the following values MUST be adjusted to fit your use-case:
-
-	# name of data file
-	fname <- "data/Participants_18_memphis_study_2/all-groups_with_NAs.csv" 
-
-	# first time in dataset = 2/7/2012 0:00
-	START.mon<- 2
-	START.day<- 7
-	START.hr <- 0
-	START.m  <- 0
-	START.val<- 0 + (START.hr*60+START.m)/(1440)
-	# last time in the dataset = 2/29/2012 0:19
-	END.mon  <- 2
-	END.day  <- 29
-	END.hr   <- 0
-	END.m    <- 19
-	END.val  <- END.day - START.day + ( END.hr*60 + END.m)/(1440)
-
-	# desired location of training/test set split in data
-	# NOTE: you will want to chose these approximately 2 cycles (days) before the end of the data
-	SPLIT.index <- 28820 # "28820","2/27/2012 0:19"
-	SPLIT.day   <- 27
-	SPLIT.hr    <- 0
-	SPLIT.m     <- 19
-	SPLIT.val   <- SPLIT.day - START.day + ( SPLIT.hr*60 + SPLIT.m )/(1440)
-
-	# the column of interest in the csv file (yes, Variance is mispelled)
-	INDEX_OF_INTEREST <- "Varience.of.RR.Interval"	
+	# === CONFIGURATION ===
+	PARTICIPANT_N <- 18	#particpant Number
+	# NOTE: if the PARTICIPANT_N you choose does not work, check the PRE-DEFINED VALUE SETS below
 
 	# === OPTIONAL COFIGURATION ITEMS: ===
-
-	# TRUE if you want to check for missing rows. if FALSE, script will not check for them.
-	MISSING_DATA = TRUE	
+	MISSING_DATA <- TRUE # TRUE if you want to check for missing rows. if FALSE, script will not check for them.
 
 	#these are for adjusting the focus of the evaluation graph
 	ZOOM.start <- 20
@@ -44,24 +17,90 @@
 
 	DELTA_T = 1/(24*60) #once per minute, assumes cycle is 1 day
 
+	# === PRE-DEFINED VALUE SETS FOR CONVENIENCE ===
+	if(PARTICIPANT_N == 12){
+		# name of data file
+		fname <- "data/Participants_12_memphis_study_1/logax.csv" 
+
+		print(cat("const values for participant number",par_N,"undefined. quitting."))
+		q()
+		MISSING_DATA <- FALSE
+
+#		# first time in dataset = ???
+#		START.mon<- 0
+#		START.day<- 0
+#		START.hr <- 0
+#		START.m  <- 0
+		START.val<- 0 
+#		# last time in the dataset = ???
+#		END.mon  <- 0
+#		END.day  <- 0
+#		END.hr   <- 0
+#		END.m    <- 0
+#		END.val  <- END.day - START.day + ( END.hr*60 + END.m)/(1440)
+#
+#		# desired location of training/test set split in data
+#		# NOTE: you will want to chose these approximately 2 cycles (days) before the end of the data
+		SPLIT.index <- 4000 # "V4000",13
+#		SPLIT.day   <- 0
+#		SPLIT.hr    <- 0
+#		SPLIT.m     <- 0
+#		SPLIT.val   <- SPLIT.day - START.day + ( SPLIT.hr*60 + SPLIT.m )/(1440)
+
+		# the column of interest in the csv file (yes, Variance is mispelled)
+		INDEX_OF_INTEREST <- "V1"	
+
+	}else if(PARTICIPANT_N == 18){
+		# name of data file
+		fname <- "data/Participants_18_memphis_study_2/all-groups_with_NAs.csv" 
+
+		# first time in dataset = 2/7/2012 0:00
+		START.mon<- 2
+		START.day<- 7
+		START.hr <- 0
+		START.m  <- 0
+		START.val<- 0 + (START.hr*60+START.m)/(1440)
+		# last time in the dataset = 2/29/2012 0:19
+		END.mon  <- 2
+		END.day  <- 29
+		END.hr   <- 0
+		END.m    <- 19
+		END.val  <- END.day - START.day + ( END.hr*60 + END.m)/(1440)
+
+		# desired location of training/test set split in data
+		# NOTE: you will want to chose these approximately 2 cycles (days) before the end of the data
+		SPLIT.index <- 28820 # "28820","2/27/2012 0:19"
+		SPLIT.day   <- 27
+		SPLIT.hr    <- 0
+		SPLIT.m     <- 19
+		SPLIT.val   <- SPLIT.day - START.day + ( SPLIT.hr*60 + SPLIT.m )/(1440)
+
+		# the column of interest in the csv file (yes, Variance is mispelled)
+		INDEX_OF_INTEREST <- "Varience.of.RR.Interval"	
+
+		ZOOM.start <- 20
+		ZOOM.end   <- 22.1
+	} else {
+		print(cat("const values for participant number",par_N,"undefined. quitting."))
+		q()
+	}
+
+
 	# === END OF DATA-SPECIFIC VALUES, BEGIN PROGRAM CODE ===
 
 	print(cat("loading data from ",fname))
 	zz.df  <- read.csv(fname,strip.white=TRUE,header=TRUE,stringsAsFactors=FALSE)
-
 
 	print("available columns:")
 	print(colnames(zz.df))
 	# select time-series object from dataframe (use http://stat.ethz.ch/R-manual/R-patched/library/stats/html/ts.html for ref)
 	print(cat("selected column: ",INDEX_OF_INTEREST))
 
-
 	if (MISSING_DATA) {
 		source('insert_missing_data.R')
+		print(cat("saving the new csv file with missing data added to ", paste(fname,"_feature",INDEX_OF_INTEREST,".csv",sep="") ) )
+		write.csv(zz.df,paste(fname,"_feature",INDEX_OF_INTEREST,".csv",sep=""))
 	}
-
-	print(cat("saving the new csv file with missing data added to ", paste(fname,"_feature",INDEX_OF_INTEREST,".csv",sep="") ) )
-	write.csv(zz.df,paste(fname,"_feature",INDEX_OF_INTEREST,".csv",sep=""))
 
 	print(cat("creating time-series object from minute ",START.val," to ",END.val,". #samples=",length(zz.df[INDEX_OF_INTEREST]) ))
 	zz.ts <- ts(data=zz.df[[INDEX_OF_INTEREST]],deltat=DELTA_T,start=START.val)#,end=END.val)
