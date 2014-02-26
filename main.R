@@ -2,8 +2,6 @@
 	# this is a spectral analysis including exponential smoothing prediction
 	# which treats 1 day as an entire 'seasonal cycle'. 
 
-
-
 	# === CONFIGURATION ===
 	PARTICIPANT_N <- 18	#particpant Number
 	# NOTE: if the PARTICIPANT_N you choose does not work, check the PRE-DEFINED VALUE SETS below
